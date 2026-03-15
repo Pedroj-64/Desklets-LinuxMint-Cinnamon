@@ -147,5 +147,5 @@ Todos los desklets usan el esquema de colores [Tokyo Night](https://github.com/f
 
 ## Autor
 
-**Pedro** — Estudiante de Ingeniería de Sistemas y Computación @ UniQuindío  
+**Pedro Soto (Ajolote)** — Estudiante de Ingeniería de Sistemas y Computación @ UniQuindío  
 Junior Cybersecurity Analyst | Java · JavaScript · Python
