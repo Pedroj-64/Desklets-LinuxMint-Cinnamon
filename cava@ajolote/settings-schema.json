@@ -1,0 +1,82 @@
+{
+    "layout_header": {
+        "type": "header",
+        "description": "Tamaño del widget"
+    },
+    "num_bars": {
+        "type": "spinbutton",
+        "default": 32,
+        "min": 8,
+        "max": 64,
+        "step": 4,
+        "description": "Número de barras  —  más barras = widget más ancho"
+    },
+    "bar_height": {
+        "type": "scale",
+        "default": 100,
+        "min": 40,
+        "max": 220,
+        "step": 5,
+        "description": "Alto de las barras (px)"
+    },
+    "bar_width": {
+        "type": "scale",
+        "default": 5,
+        "min": 2,
+        "max": 16,
+        "step": 1,
+        "description": "Ancho de cada barra (px)"
+    },
+    "bar_gap": {
+        "type": "scale",
+        "default": 3,
+        "min": 1,
+        "max": 8,
+        "step": 1,
+        "description": "Espacio entre barras (px)"
+    },
+    "side_padding": {
+        "type": "scale",
+        "default": 8,
+        "min": 0,
+        "max": 24,
+        "step": 2,
+        "description": "Relleno del contenedor (px)"
+    },
+
+    "appearance_header": {
+        "type": "header",
+        "description": "Apariencia"
+    },
+    "show_peaks": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Mostrar marcadores de pico"
+    },
+    "mirror": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Modo espejo  —  barras crecen desde el centro"
+    },
+
+    "perf_header": {
+        "type": "header",
+        "description": "Rendimiento"
+    },
+    "framerate": {
+        "type": "scale",
+        "default": 25,
+        "min": 10,
+        "max": 60,
+        "step": 5,
+        "description": "FPS de cava  —  más alto = más fluido, más CPU"
+    },
+    "noise_reduction": {
+        "type": "scale",
+        "default": 66,
+        "min": 30,
+        "max": 90,
+        "step": 5,
+        "description": "Suavizado  —  más alto = más suave, menos reactivo"
+    }
+}
