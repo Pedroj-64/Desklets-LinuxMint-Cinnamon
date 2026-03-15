@@ -1,12 +1,11 @@
 /* weather@ajolote — tokyonight */
 
 .weather-container {
-    background-color: #1a1b26;
-    border: 1px solid #414868;
-    border-radius: 10px;
+    background-color: rgba(26, 27, 38, 0.55);
+    border-radius: 14px;
+    border: 1px solid rgba(65, 72, 104, 0.5);
     padding: 10px 14px;
     min-width: 200px;
-    spacing: 4px;
 }
 
 .weather-temp {
@@ -38,5 +37,4 @@
     font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
     font-size: 10px;
     color: #565f89;
-    spacing: 8px;
 }

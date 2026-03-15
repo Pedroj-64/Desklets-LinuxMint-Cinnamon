@@ -48,6 +48,19 @@
         "type": "header",
         "description": "Apariencia"
     },
+    "auto_opacity": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Opacidad reactiva al wallpaper (ajusta automáticamente según el brillo del fondo de pantalla)"
+    },
+    "bg_opacity": {
+        "type": "scale",
+        "default": 55,
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "description": "Opacidad del fondo (0 = transparente, 100 = sólido) — ignorado si la opción reactiva está activa"
+    },
     "show_peaks": {
         "type": "checkbox",
         "default": true,
@@ -78,5 +91,10 @@
         "max": 90,
         "step": 5,
         "description": "Suavizado  —  más alto = más suave, menos reactivo"
+    },
+    "pause_on_fullscreen": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Detener cava cuando hay app en pantalla completa (ahorra CPU)"
     }
 }

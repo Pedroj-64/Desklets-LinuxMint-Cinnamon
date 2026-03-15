@@ -2,7 +2,9 @@
     "uuid": "sysmonitor@ajolote",
     "name": "Sys Monitor",
     "description": "Monitor de CPU, RAM y GPU estilo tokyonight",
-    "version": "1.0",
+    "version": "2.2",
     "author": "ajolote",
-    "icon": "utilities-system-monitor"
+    "website": "https://github.com/Pedroj-64",
+    "icon": "utilities-system-monitor",
+    "prevent-decorations": true
 }

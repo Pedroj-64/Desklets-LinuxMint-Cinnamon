@@ -1,11 +1,10 @@
 /* clock@ajolote — tokyonight */
 
 .clock-container {
-    background-color: #1a1b26;
-    border: 1px solid #414868;
-    border-radius: 10px;
+    background-color: rgba(26, 27, 38, 0.55);
+    border-radius: 14px;
+    border: 1px solid rgba(65, 72, 104, 0.5);
     padding: 12px 18px;
-    min-width: 180px;
     spacing: 2px;
 }
 

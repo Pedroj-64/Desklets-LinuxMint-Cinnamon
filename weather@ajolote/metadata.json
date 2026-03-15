@@ -2,7 +2,9 @@
     "uuid": "weather@ajolote",
     "name": "Weather",
     "description": "Clima de Bogotá via OpenWeatherMap",
-    "version": "1.0",
+    "version": "2.2",
     "author": "ajolote",
-    "icon": "weather-clear"
+    "website": "https://github.com/Pedroj-64",
+    "icon": "weather-clear",
+    "prevent-decorations": true
 }

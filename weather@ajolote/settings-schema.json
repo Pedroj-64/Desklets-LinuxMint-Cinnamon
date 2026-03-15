@@ -1,0 +1,50 @@
+{
+    "widget_min_width": {
+        "type": "scale",
+        "default": 200,
+        "min": 160,
+        "max": 400,
+        "step": 10,
+        "description": "Ancho mínimo del widget (px)"
+    },
+    "widget_min_height": {
+        "type": "scale",
+        "default": 100,
+        "min": 60,
+        "max": 250,
+        "step": 10,
+        "description": "Alto mínimo del widget (px)"
+    },
+    "auto_opacity": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Opacidad reactiva al wallpaper (ajusta automáticamente según el brillo del fondo de pantalla)"
+    },
+    "bg_opacity": {
+        "type": "scale",
+        "default": 55,
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "description": "Opacidad del fondo (0 = transparente, 100 = sólido) — ignorado si la opción reactiva está activa"
+    },
+    "city_name": {
+        "type": "entry",
+        "default": "Bogota",
+        "description": "Ciudad (ej: Bogota, Medellin,CO, London,UK)"
+    },
+    "units": {
+        "type": "combobox",
+        "default": "metric",
+        "options": {
+            "Celsius": "metric",
+            "Fahrenheit": "imperial"
+        },
+        "description": "Unidades de temperatura"
+    },
+    "pause_on_fullscreen": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Pausar actualizaciones cuando hay app en pantalla completa"
+    }
+}

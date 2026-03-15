@@ -1,16 +1,10 @@
-/* sysmonitor@ajolote — tokyonight */
+/* sysmonitor@ajolote — estilos tokyonight para el monitor de sistema */
 
 .sysmon-container {
-    background-color: #1a1b26;
-    border: 1px solid #414868;
-    border-radius: 10px;
+    background-color: rgba(26, 27, 38, 0.55);
+    border-radius: 14px;
+    border: 1px solid rgba(65, 72, 104, 0.5);
     padding: 10px 14px;
-    min-width: 220px;
-    spacing: 4px;
-}
-
-.sysmon-row {
-    spacing: 6px;
 }
 
 .sysmon-label {
@@ -26,19 +20,27 @@
     color: #c0caf5;
 }
 
-.sysmon-bar-bg {
-    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
-    font-size: 10px;
-    color: #414868;
-}
-
-.sysmon-bar-text {
+/* cada métrica tiene su propio color para distinguirlas de un vistazo:
+   CPU → azul (#7aa2f7), RAM → lila (#bb9af7), GPU → verde (#9ece6a)
+   todos son colores del tema TokyoNight Night */
+.sysmon-bar-cpu {
     font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
     font-size: 10px;
     color: #7aa2f7;
+    margin-bottom: 4px;
 }
 
-.sysmon-separator {
-    color: #414868;
-    font-size: 8px;
+.sysmon-bar-ram {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 10px;
+    color: #bb9af7;
+    margin-bottom: 4px;
 }
+
+.sysmon-bar-gpu {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 10px;
+    color: #9ece6a;
+    margin-bottom: 4px;
+}
+

@@ -1,0 +1,74 @@
+{
+    "layout_header": {
+        "type": "header",
+        "description": "Tamaño"
+    },
+    "cover_size": {
+        "type": "scale",
+        "default": 60,
+        "min": 40,
+        "max": 200,
+        "step": 5,
+        "description": "Tamaño de carátula (px)"
+    },
+    "max_chars": {
+        "type": "scale",
+        "default": 26,
+        "min": 16,
+        "max": 40,
+        "step": 1,
+        "description": "Caracteres máx. por línea"
+    },
+    "widget_width": {
+        "type": "scale",
+        "default": 300,
+        "min": 220,
+        "max": 520,
+        "step": 10,
+        "description": "Ancho del widget (px)"
+    },
+    "widget_min_height": {
+        "type": "scale",
+        "default": 140,
+        "min": 100,
+        "max": 300,
+        "step": 10,
+        "description": "Alto mínimo del widget (px)"
+    },
+
+    "appearance_header": {
+        "type": "header",
+        "description": "Apariencia"
+    },
+    "auto_opacity": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Opacidad reactiva al wallpaper (ajusta automáticamente según el brillo del fondo de pantalla)"
+    },
+    "bg_opacity": {
+        "type": "scale",
+        "default": 55,
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "description": "Opacidad del fondo (0 = transparente, 100 = sólido) — ignorado si la opción reactiva está activa"
+    },
+    "title_font_size": {
+        "type": "scale",
+        "default": 13,
+        "min": 9,
+        "max": 24,
+        "step": 1,
+        "description": "Tamaño de letra del título (px)"
+    },
+
+    "behavior_header": {
+        "type": "header",
+        "description": "Comportamiento"
+    },
+    "pause_on_fullscreen": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Pausar actualizaciones cuando hay app en pantalla completa"
+    }
+}

@@ -1,0 +1,67 @@
+{
+    "update_ms": {
+        "type": "scale",
+        "default": 2000,
+        "min": 1000,
+        "max": 10000,
+        "step": 500,
+        "description": "Intervalo de actualización (ms)"
+    },
+    "bar_chars": {
+        "type": "scale",
+        "default": 18,
+        "min": 10,
+        "max": 30,
+        "step": 1,
+        "description": "Ancho de barras (caracteres)"
+    },
+    "show_gpu": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Mostrar GPU"
+    },
+    "gpu_source": {
+        "type": "combobox",
+        "default": "auto",
+        "options": {
+            "Auto (AMD → NVIDIA)": "auto",
+            "AMD (iGPU sysfs)": "amd",
+            "NVIDIA (nvidia-smi)": "nvidia"
+        },
+        "description": "Fuente de datos GPU"
+    },
+    "widget_min_width": {
+        "type": "scale",
+        "default": 260,
+        "min": 200,
+        "max": 500,
+        "step": 10,
+        "description": "Ancho mínimo del widget (px)"
+    },
+    "widget_min_height": {
+        "type": "scale",
+        "default": 120,
+        "min": 80,
+        "max": 300,
+        "step": 10,
+        "description": "Alto mínimo del widget (px)"
+    },
+    "auto_opacity": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Opacidad reactiva al wallpaper (ajusta automáticamente según el brillo del fondo de pantalla)"
+    },
+    "bg_opacity": {
+        "type": "scale",
+        "default": 55,
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "description": "Opacidad del fondo (0 = transparente, 100 = sólido) — ignorado si la opción reactiva está activa"
+    },
+    "pause_on_fullscreen": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Pausar actualizaciones cuando hay app en pantalla completa"
+    }
+}

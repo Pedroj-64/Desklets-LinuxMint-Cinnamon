@@ -1,0 +1,46 @@
+{
+    "use_12h": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Formato 12 horas (AM/PM)"
+    },
+    "show_seconds": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Mostrar segundos"
+    },
+    "widget_width": {
+        "type": "scale",
+        "default": 200,
+        "min": 140,
+        "max": 400,
+        "step": 10,
+        "description": "Ancho del widget (px)"
+    },
+    "widget_min_height": {
+        "type": "scale",
+        "default": 80,
+        "min": 40,
+        "max": 200,
+        "step": 10,
+        "description": "Alto mínimo del widget (px)"
+    },
+    "bg_opacity": {
+        "type": "scale",
+        "default": 55,
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "description": "Opacidad del fondo (0 = transparente, 100 = sólido) — ignorado si la opción reactiva está activa"
+    },
+    "auto_opacity": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Opacidad reactiva al wallpaper (ajusta automáticamente según el brillo del fondo de pantalla)"
+    },
+    "pause_on_fullscreen": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Pausar actualizaciones cuando hay app en pantalla completa"
+    }
+}

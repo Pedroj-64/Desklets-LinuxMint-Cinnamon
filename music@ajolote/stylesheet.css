@@ -1,17 +1,16 @@
-/* music@ajolote — tokyonight */
+/* music@ajolote — estilos tokyonight para el widget de música */
 
 .music-container {
-    background-color: #1a1b26;
-    border: 1px solid #414868;
-    border-radius: 10px;
+    /* background-color va en inline style desde el desklet (valor de bg_opacity del usuario).
+       No lo ponemos acá porque el CSS del desklet no tiene acceso a los settings. */
+    border-radius: 14px;
+    border: 1px solid rgba(65, 72, 104, 0.5);
     padding: 10px 14px;
-    min-width: 280px;
-    spacing: 6px;
 }
 
 .music-title {
     font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
-    font-size: 13px;
+    /* font-size va en inline style desde el desklet (valor de title_font_size del usuario) */
     font-weight: bold;
     color: #c0caf5;
 }
@@ -22,38 +21,44 @@
     color: #7aa2f7;
 }
 
+/* ── Controles ────────────────────────────────────────────────────────────── */
+
 .music-controls {
-    spacing: 10px;
+    padding-top: 10px;
+    spacing: 8px;
 }
 
+/* Botones prev / next: forma de píldora, discreta por default, se ilumina en hover */
 .music-btn {
-    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
-    font-size: 16px;
+    border-radius: 50px;
+    padding: 6px 14px;
+    background-color: rgba(31, 35, 53, 0.7);
+    border: 1px solid rgba(65, 72, 104, 0.45);
     color: #565f89;
-    border-radius: 4px;
-    padding: 2px 6px;
-    border: 1px solid transparent;
 }
 
 .music-btn:hover {
+    background-color: rgba(65, 72, 104, 0.55);
+    border-color: #7aa2f7;
     color: #c0caf5;
-    border-color: #414868;
-    background-color: #1f2335;
 }
 
+/* Botón play/pausa: más grande y con acento azul tokyonight para que destaque visualmente */
 .music-btn-play {
-    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
-    font-size: 16px;
+    border-radius: 50px;
+    padding: 7px 20px;
+    background-color: rgba(122, 162, 247, 0.12);
+    border: 1px solid rgba(122, 162, 247, 0.55);
     color: #7aa2f7;
-    border-radius: 4px;
-    padding: 2px 8px;
-    border: 1px solid #414868;
 }
 
 .music-btn-play:hover {
+    background-color: rgba(122, 162, 247, 0.28);
+    border-color: #c0caf5;
     color: #c0caf5;
-    background-color: #1f2335;
 }
+
+/* ── Resto ────────────────────────────────────────────────────────────────── */
 
 .music-status {
     font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
@@ -62,6 +67,5 @@
 }
 
 .music-cover {
-    border-radius: 4px;
-    border: 1px solid #414868;
+    border-radius: 8px;
 }

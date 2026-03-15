@@ -2,7 +2,9 @@
     "uuid": "music@ajolote",
     "name": "Music Player",
     "description": "Player de música MPRIS con controles y carátula",
-    "version": "1.0",
+    "version": "2.2",
     "author": "ajolote",
-    "icon": "audio-x-generic"
+    "website": "https://github.com/Pedroj-64",
+    "icon": "audio-x-generic",
+    "prevent-decorations": true
 }
