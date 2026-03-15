@@ -104,9 +104,10 @@ Each desklet folder contains:
 
 ---
 
-## Author
-
-Pedro Soto (Ajolote)
+#### 🏆 Lead Developer
+**Pedro José Soto Rivera**
+*Basic Java, JavaScript, Python, Elixir/Erlang, React, Spring (noob), Kotlin and Gradle, C#. Junior Cybersecurity Analyst*
+Architecture, frontend & backend development, API integration, CI/CD
 
 ---
 
@@ -214,6 +215,8 @@ Cada carpeta de desklet contiene:
 
 ---
 
-## Autor
 
-Pedro Soto (Ajolote)
+#### 🏆 Desarrollador Principal
+**Pedro José Soto Rivera**  
+*Basic Java, JavaScript, Python, Elixir/Erlang , React, Spring (noob),Kotlin and Gradle, C#. Junior Cybersecurity Analyst*  
+Arquitectura, desarrollo frontend & backend, integración de APIs, CI/CD
