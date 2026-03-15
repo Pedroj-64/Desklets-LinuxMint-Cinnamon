@@ -1,0 +1,42 @@
+/* weather@ajolote — tokyonight */
+
+.weather-container {
+    background-color: #1a1b26;
+    border: 1px solid #414868;
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-width: 200px;
+    spacing: 4px;
+}
+
+.weather-temp {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 32px;
+    font-weight: bold;
+    color: #c0caf5;
+}
+
+.weather-desc {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 12px;
+    color: #7aa2f7;
+}
+
+.weather-city {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 10px;
+    color: #565f89;
+}
+
+.weather-icon {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 28px;
+    color: #9ece6a;
+}
+
+.weather-details {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 10px;
+    color: #565f89;
+    spacing: 8px;
+}

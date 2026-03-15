@@ -1,0 +1,8 @@
+{
+    "uuid": "music@ajolote",
+    "name": "Music Player",
+    "description": "Player de música MPRIS con controles y carátula",
+    "version": "1.0",
+    "author": "ajolote",
+    "icon": "audio-x-generic"
+}

@@ -1,0 +1,67 @@
+/* music@ajolote — tokyonight */
+
+.music-container {
+    background-color: #1a1b26;
+    border: 1px solid #414868;
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-width: 280px;
+    spacing: 6px;
+}
+
+.music-title {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 13px;
+    font-weight: bold;
+    color: #c0caf5;
+}
+
+.music-artist {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 11px;
+    color: #7aa2f7;
+}
+
+.music-controls {
+    spacing: 10px;
+}
+
+.music-btn {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 16px;
+    color: #565f89;
+    border-radius: 4px;
+    padding: 2px 6px;
+    border: 1px solid transparent;
+}
+
+.music-btn:hover {
+    color: #c0caf5;
+    border-color: #414868;
+    background-color: #1f2335;
+}
+
+.music-btn-play {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 16px;
+    color: #7aa2f7;
+    border-radius: 4px;
+    padding: 2px 8px;
+    border: 1px solid #414868;
+}
+
+.music-btn-play:hover {
+    color: #c0caf5;
+    background-color: #1f2335;
+}
+
+.music-status {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 10px;
+    color: #414868;
+}
+
+.music-cover {
+    border-radius: 4px;
+    border: 1px solid #414868;
+}

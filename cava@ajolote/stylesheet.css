@@ -1,0 +1,12 @@
+/* cava@ajolote — tokyonight */
+
+.cava-container {
+    background-color: #1a1b26;
+    border: 1px solid #414868;
+    border-radius: 10px;
+    padding: 6px 8px;
+}
+
+.cava-bars {
+    spacing: 2px;
+}

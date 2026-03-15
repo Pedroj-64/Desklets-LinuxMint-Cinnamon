@@ -1,0 +1,8 @@
+{
+    "uuid": "clock@ajolote",
+    "name": "Minimal Clock",
+    "description": "Reloj minimal estilo tokyonight con fecha",
+    "version": "1.0",
+    "author": "ajolote",
+    "icon": "preferences-system-time"
+}

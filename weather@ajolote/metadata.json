@@ -1,0 +1,8 @@
+{
+    "uuid": "weather@ajolote",
+    "name": "Weather",
+    "description": "Clima de Bogotá via OpenWeatherMap",
+    "version": "1.0",
+    "author": "ajolote",
+    "icon": "weather-clear"
+}

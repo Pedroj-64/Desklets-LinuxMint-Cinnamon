@@ -1,0 +1,8 @@
+{
+    "uuid": "cava@ajolote",
+    "name": "Cava Visualizer",
+    "description": "Visualizador de audio con barras tokyonight usando cava",
+    "version": "1.0",
+    "author": "ajolote",
+    "icon": "audio-speakers"
+}

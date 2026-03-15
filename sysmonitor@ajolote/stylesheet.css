@@ -1,0 +1,44 @@
+/* sysmonitor@ajolote — tokyonight */
+
+.sysmon-container {
+    background-color: #1a1b26;
+    border: 1px solid #414868;
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-width: 220px;
+    spacing: 4px;
+}
+
+.sysmon-row {
+    spacing: 6px;
+}
+
+.sysmon-label {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 11px;
+    color: #565f89;
+    min-width: 36px;
+}
+
+.sysmon-value {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 11px;
+    color: #c0caf5;
+}
+
+.sysmon-bar-bg {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 10px;
+    color: #414868;
+}
+
+.sysmon-bar-text {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 10px;
+    color: #7aa2f7;
+}
+
+.sysmon-separator {
+    color: #414868;
+    font-size: 8px;
+}

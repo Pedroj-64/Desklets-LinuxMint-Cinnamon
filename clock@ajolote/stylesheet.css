@@ -1,0 +1,25 @@
+/* clock@ajolote — tokyonight */
+
+.clock-container {
+    background-color: #1a1b26;
+    border: 1px solid #414868;
+    border-radius: 10px;
+    padding: 12px 18px;
+    min-width: 180px;
+    spacing: 2px;
+}
+
+.clock-time {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 38px;
+    font-weight: bold;
+    color: #c0caf5;
+    text-align: center;
+}
+
+.clock-date {
+    font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Monospace';
+    font-size: 12px;
+    color: #7aa2f7;
+    text-align: center;
+}

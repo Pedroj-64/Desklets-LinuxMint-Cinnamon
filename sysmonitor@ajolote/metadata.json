@@ -1,0 +1,8 @@
+{
+    "uuid": "sysmonitor@ajolote",
+    "name": "Sys Monitor",
+    "description": "Monitor de CPU, RAM y GPU estilo tokyonight",
+    "version": "1.0",
+    "author": "ajolote",
+    "icon": "utilities-system-monitor"
+}
