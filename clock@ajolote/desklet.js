@@ -4,6 +4,7 @@
 const Desklet   = imports.ui.desklet;
 const St        = imports.gi.St;
 const GLib      = imports.gi.GLib;
+const Gio       = imports.gi.Gio;
 const Clutter   = imports.gi.Clutter;
 const Meta      = imports.gi.Meta;
 const Settings  = imports.ui.settings;
@@ -57,7 +58,7 @@ ClockDesklet.prototype = {
             this._settings.bindProperty(Settings.BindingDirection.IN,
                 'use_12h',             '_use12h',             this._update,               null);
             this._settings.bindProperty(Settings.BindingDirection.IN,
-                'show_seconds',        '_showSeconds',        this._update,               null);
+                'show_seconds',        '_showSeconds',        this._onSecondsChanged,     null);
             this._settings.bindProperty(Settings.BindingDirection.IN,
                 'widget_width',        '_widgetWidth',        this._onSettingsChanged,    null);
             this._settings.bindProperty(Settings.BindingDirection.IN,
@@ -100,10 +101,25 @@ ClockDesklet.prototype = {
         this._initWallpaperReactivity();
         this._applyContainerStyle();
         this._update();
-        this._timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+        this._schedule();
+    },
+
+    // sin segundos el reloj solo necesita despertar una vez por minuto (alineado al
+    // cambio de minuto); con segundos, cada 1s. antes despertaba 60 veces por minuto en vano.
+    _schedule: function () {
+        if (this._timer) GLib.source_remove(this._timer);
+        let ms = this._showSeconds ? 1000 : 60050 - (Date.now() % 60000);
+        this._timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
+            this._timer = null;
             this._update();
-            return GLib.SOURCE_CONTINUE;
+            this._schedule();
+            return GLib.SOURCE_REMOVE;
         });
+    },
+
+    _onSecondsChanged: function () {
+        this._update();
+        this._schedule();
     },
 
     // ── Opacidad reactiva al wallpaper ────────────────────────────────────────

@@ -277,8 +277,9 @@ WeatherDesklet.prototype = {
                 try {
                     let [, out] = p.communicate_utf8_finish(res);
                     if (out && out.trim()) this._parseWeather(out.trim());
+                    else this._retryLater('Sin conexión');
                 } catch (e) {
-                    this._descLabel.set_text('Error de red');
+                    this._retryLater('Error de red');
                 }
             });
         } catch (e) {
@@ -286,9 +287,22 @@ WeatherDesklet.prototype = {
         }
     },
 
+    // si falla la red (típico al iniciar sesión antes de que haya wifi) no esperamos
+    // 10 minutos para el siguiente intento: reintentamos en 1 minuto
+    _retryLater: function (msg) {
+        this._descLabel.set_text(msg + ' — reintentando...');
+        if (this._retry) GLib.source_remove(this._retry);
+        this._retry = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 60, () => {
+            this._retry = null;
+            this._fetchWeather();
+            return GLib.SOURCE_REMOVE;
+        });
+    },
+
     _parseWeather: function (json) {
         try {
             let d = JSON.parse(json);
+            if (this._retry) { GLib.source_remove(this._retry); this._retry = null; }
             if (d.cod && d.cod !== 200) {
                 this._descLabel.set_text('API: ' + (d.message || 'Error'));
                 return;
@@ -324,6 +338,10 @@ WeatherDesklet.prototype = {
         if (this._timer) {
             GLib.source_remove(this._timer);
             this._timer = null;
+        }
+        if (this._retry) {
+            GLib.source_remove(this._retry);
+            this._retry = null;
         }
         if (this._settings) { try { this._settings.finalize(); } catch (e) {} }
     },

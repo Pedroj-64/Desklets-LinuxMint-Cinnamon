@@ -33,12 +33,8 @@ function readFile(path) {
     return null;
 }
 
-// genera una barrita de bloques unicode del ancho configurado por el usuario.
-// ▓ = bloque lleno, ░ = bloque vacío — se ve bien con JetBrainsMono
-function makeBar(pct, width) {
-    let filled = Math.round(width * Math.max(0, Math.min(100, pct)) / 100);
-    return '▓'.repeat(filled) + '░'.repeat(width - filled);
-}
+// por encima de este porcentaje la barra se pone roja
+const HOT_PCT = 85;
 
 // necesitamos saber si hay algo en fullscreen para saltarnos el update.
 // la API cambió entre versiones de Cinnamon — de ahí los dos try/catch.
@@ -82,7 +78,6 @@ SysMonitorDesklet.prototype = {
 
         // ── Settings ──────────────────────────────────────────────────────────
         this._updateMs        = 2000;
-        this._barChars        = 18;
         this._showGpu         = true;
         this._widgetMinWidth  = 260;
         this._widgetMinHeight = 120;
@@ -105,9 +100,7 @@ SysMonitorDesklet.prototype = {
             // intervalo del timer — solo hay que matar y recrear el timeout
             this._settings.bindProperty(Settings.BindingDirection.IN,
                 'update_ms',           '_updateMs',          this._onTimerChanged,    null);
-            // ancho de la barra y fuente de GPU — el próximo _update() los usará automáticamente
-            this._settings.bindProperty(Settings.BindingDirection.IN,
-                'bar_chars',           '_barChars',          this._onConfigChanged,   null);
+            // fuente de GPU — el próximo _update() la usará automáticamente
             this._settings.bindProperty(Settings.BindingDirection.IN,
                 'gpu_source',          '_gpuSource',         this._onGpuSourceChanged, null);
             // visibilidad de la fila GPU — solo show/hide, sin reconstruir
@@ -131,21 +124,21 @@ SysMonitorDesklet.prototype = {
         this._applyContainerStyle();
 
         this._cpuRow    = this._makeRow('CPU', '0%');
-        this._cpuBar    = this._makeBarLabel('sysmon-bar-cpu');
+        this._cpuBar    = this._makeBar('sysmon-fill-cpu');
         this._ramRow    = this._makeRow('RAM', '0.0 / 0.0 GB');
-        this._ramBar    = this._makeBarLabel('sysmon-bar-ram');
+        this._ramBar    = this._makeBar('sysmon-fill-ram');
         this._gpuRow    = this._makeRow('GPU', 'N/A');
-        this._gpuBar    = this._makeBarLabel('sysmon-bar-gpu');
+        this._gpuBar    = this._makeBar('sysmon-fill-gpu');
 
         this._container.add_child(this._cpuRow.box);
-        this._container.add_child(this._cpuBar);
+        this._container.add_child(this._cpuBar.track);
         this._container.add_child(this._ramRow.box);
-        this._container.add_child(this._ramBar);
+        this._container.add_child(this._ramBar.track);
         this._container.add_child(this._gpuRow.box);
-        this._container.add_child(this._gpuBar);
+        this._container.add_child(this._gpuBar.track);
         if (!this._showGpu) {
             this._gpuRow.box.hide();
-            this._gpuBar.hide();
+            this._gpuBar.track.hide();
         }
 
         this.setContent(this._container);
@@ -157,6 +150,7 @@ SysMonitorDesklet.prototype = {
         let alpha = Math.min(Math.max(opacityVal, 0), 100) / 100;
         this._container.set_style(
             'background-color: rgba(26, 27, 38, ' + alpha + ');' +
+            'width: '        + this._widgetMinWidth  + 'px;'     +
             'min-width: '    + this._widgetMinWidth  + 'px;'     +
             'min-height: '   + this._widgetMinHeight + 'px;'     +
             'border-radius: 14px;'                               +
@@ -184,11 +178,32 @@ SysMonitorDesklet.prototype = {
         return { box: box, val: val };
     },
 
-    _makeBarLabel: function (styleClass) {
-        return new St.Label({
-            text: makeBar(0, this._barChars),
-            style_class: styleClass || 'sysmon-bar-cpu',
-        });
+    // barra de progreso real: un track con un relleno cuyo ancho se calcula en px.
+    // reemplaza las barras de ▓░ (un label de texto que se re-layouteaba en cada tick).
+    _makeBar: function (fillClass) {
+        let track = new St.Widget({ style_class: 'sysmon-track', clip_to_allocation: true });
+        let fill  = new St.Widget({ style_class: fillClass });
+        fill.set_width(0);
+        track.add_child(fill);
+        return { track: track, fill: fill, pct: -1, hot: false };
+    },
+
+    _setBar: function (bar, pct) {
+        pct = Math.max(0, Math.min(100, pct));
+        if (pct === bar.pct) return;
+        bar.pct = pct;
+        // ancho útil = ancho del widget menos el padding horizontal (14px × 2)
+        bar.fill.set_width(Math.round((this._widgetMinWidth - 28) * pct / 100));
+        let hot = pct >= HOT_PCT;
+        if (hot !== bar.hot) {
+            bar.hot = hot;
+            if (hot) bar.fill.add_style_class_name('sysmon-hot');
+            else bar.fill.remove_style_class_name('sysmon-hot');
+        }
+    },
+
+    _setText: function (label, text) {
+        if (label.get_text() !== text) label.set_text(text);
     },
 
     // CPU — lee /proc/stat y calcula el porcentaje comparando los deltas entre dos ticks.
@@ -249,19 +264,20 @@ SysMonitorDesklet.prototype = {
 
         // ── AMD via sysfs ─────────────────────────────────────────────────────
         if (src === 'auto' || src === 'amd') {
-            for (let i = 0; i <= 4; i++) {
+            // recordamos qué cardN respondió para no probar las 5 en cada tick
+            let cards = this._amdCard !== undefined ? [this._amdCard] : [0, 1, 2, 3, 4];
+            for (let i of cards) {
                 let amdLoad = readFile('/sys/class/drm/card' + i + '/device/gpu_busy_percent');
-                if (amdLoad !== null) {
-                    let pct = parseInt(amdLoad.trim());
-                    if (!isNaN(pct)) {
-                        this._gpuPct  = pct;
-                        this._gpuText = pct + '% AMD';
-        this._gpuFetching = false;
-        this._destroyed   = false;
-                        return;
-                    }
+                let pct = amdLoad !== null ? parseInt(amdLoad.trim()) : NaN;
+                if (!isNaN(pct)) {
+                    this._amdCard = i;
+                    this._gpuPct  = pct;
+                    this._gpuText = pct + '% AMD';
+                    this._gpuFetching = false;
+                    return;
                 }
             }
+            this._amdCard = undefined;
             // if forced AMD and nothing found, give up — no tiene sentido caer al path de nvidia
             if (src === 'amd') {
                 this._gpuText = 'N/A';
@@ -303,32 +319,35 @@ SysMonitorDesklet.prototype = {
                 }
             });
         } catch (e) {
+            // nvidia-smi no existe: no tiene sentido relanzar el spawn cada 2s
             this._gpuFetching = false;
             this._gpuText = 'N/A';
+            this._gpuDead = true;
         }
     },
 
     _update: function () {
         if (this._pauseOnFullscreen && _isAnyWindowFullscreen()) return;
         let cpu = this._getCpuUsage();
-        this._cpuRow.val.set_text(cpu + '%');
-        this._cpuBar.set_text(makeBar(cpu, this._barChars));
+        this._setText(this._cpuRow.val, cpu + '%');
+        this._setBar(this._cpuBar, cpu);
 
         let ram = this._getRamUsage();
-        this._ramRow.val.set_text(ram.text);
-        this._ramBar.set_text(makeBar(ram.pct, this._barChars));
+        this._setText(this._ramRow.val, ram.text);
+        this._setBar(this._ramBar, ram.pct);
 
         if (this._showGpu) {
             // mostramos el dato del ciclo anterior mientras el nuevo fetch corre async.
             // al usuario no le importa si el dato tiene 2 segundos de retraso.
-            this._gpuRow.val.set_text(this._gpuText);
-            this._gpuBar.set_text(makeBar(this._gpuPct, this._barChars));
-            this._fetchGpuAsync();
+            this._setText(this._gpuRow.val, this._gpuText);
+            this._setBar(this._gpuBar, this._gpuPct);
+            if (!this._gpuDead) this._fetchGpuAsync();
         }
     },
 
     _onStyleChanged: function () {
         this._applyContainerStyle();
+        for (let b of [this._cpuBar, this._ramBar, this._gpuBar]) { let p = b.pct; b.pct = -1; this._setBar(b, p); }
     },
 
     _onAutoOpacityChanged: function () {
@@ -380,19 +399,13 @@ SysMonitorDesklet.prototype = {
         this._startTimer();
     },
 
-    // bar_chars cambió: el próximo _update() toma el nuevo valor directamente de _barChars,
-    // así que solo necesitamos disparar un update inmediato para que se note el cambio
-    _onConfigChanged: function () {
-        this._update();
-    },
-
     _onGpuToggled: function () {
         if (this._showGpu) {
             this._gpuRow.box.show();
-            this._gpuBar.show();
+            this._gpuBar.track.show();
         } else {
             this._gpuRow.box.hide();
-            this._gpuBar.hide();
+            this._gpuBar.track.hide();
         }
     },
 
@@ -402,6 +415,8 @@ SysMonitorDesklet.prototype = {
         this._gpuPct     = 0;
         this._gpuText    = 'N/A';
         this._gpuFetching = false;
+        this._gpuDead     = false;
+        this._amdCard     = undefined;
     },
 
     on_desklet_removed: function () {

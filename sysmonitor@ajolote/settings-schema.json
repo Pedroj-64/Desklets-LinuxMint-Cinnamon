@@ -7,14 +7,6 @@
         "step": 500,
         "description": "Intervalo de actualización (ms)"
     },
-    "bar_chars": {
-        "type": "scale",
-        "default": 18,
-        "min": 10,
-        "max": 30,
-        "step": 1,
-        "description": "Ancho de barras (caracteres)"
-    },
     "show_gpu": {
         "type": "checkbox",
         "default": true,

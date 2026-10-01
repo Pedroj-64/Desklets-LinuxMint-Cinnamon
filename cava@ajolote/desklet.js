@@ -26,11 +26,12 @@ const PEAK_FALL   = 1.5;
 const _decoder = new TextDecoder('utf-8');
 const _encoder = new TextEncoder();
 
-// colores del gradiente vertical por barra.
+// gradiente vertical compartido por todas las barras (se crea una vez por frame, no por barra).
 // top: #7aa2f7 (tokyonight blue) — el color principal del tema.
-// bottom: #1e3463 — mismo azul pero muy oscuro y casi transparente, así la barra se desvanece.
+// bottom: azul más oscuro y semitransparente. como el gradiente es del área completa, las barras
+// bajas se ven más tenues y las altas más brillantes: la intensidad se lee de un vistazo.
 const BAR_TOP    = [0.478, 0.635, 0.969];
-const BAR_BOTTOM = [0.118, 0.204, 0.388];
+const BAR_BOTTOM = [0.239, 0.349, 0.659];
 
 // necesitamos saber si hay algo en fullscreen para pausar el visualizador.
 // la API cambió entre versiones de Cinnamon: las recientes tienen get_active_workspace()
@@ -207,6 +208,16 @@ CavaDesklet.prototype = {
         // radio del redondeo en el top de cada barra — máximo 5px para que no se vea burdo
         let rad = Math.min(Math.floor(bw / 2), 5);
 
+        // un solo gradiente para todas las barras (antes eran n gradientes por frame).
+        // en modo espejo es simétrico: brillante en las puntas, tenue en el centro.
+        let grad = new Cairo.LinearGradient(0, 0, 0, bh);
+        grad.addColorStopRGBA(0.0, BAR_TOP[0], BAR_TOP[1], BAR_TOP[2], 0.95);
+        grad.addColorStopRGBA(mi ? 0.5 : 1.0, BAR_BOTTOM[0], BAR_BOTTOM[1], BAR_BOTTOM[2], 0.55);
+        if (mi) grad.addColorStopRGBA(1.0, BAR_TOP[0], BAR_TOP[1], BAR_TOP[2], 0.95);
+        cr.setSource(grad);
+
+        // todas las barras en un mismo path → un único fill()
+        let peaks = [];
         for (let i = 0; i < n; i++) {
             let raw = this._values[i];
             let d   = this._display[i];
@@ -217,35 +228,8 @@ CavaDesklet.prototype = {
                 ? d * 0.40 + raw * 0.60
                 : d * 0.75 + raw * 0.25;
 
-            let dv = Math.max(0, Math.min(100, this._display[i]));
-            if (dv < 1) continue;
-
-            let x = i * (bw + bg);
-            let h = Math.max(2, Math.round(bh * dv / 100));
-            let y = mi ? Math.floor((bh - h) / 2) : bh - h;
-
-            // gradiente vertical: tokyonight blue arriba, oscuro casi transparente abajo.
-            // el stop de abajo tiene alpha 0.25 así las barras se "funden" con el fondo.
-            let grad = new Cairo.LinearGradient(x, y, x, y + h);
-            grad.addColorStopRGBA(0.0, BAR_TOP[0],    BAR_TOP[1],    BAR_TOP[2],    0.92);
-            grad.addColorStopRGBA(1.0, BAR_BOTTOM[0], BAR_BOTTOM[1], BAR_BOTTOM[2], 0.25);
-            cr.setSource(grad);
-
-            // top redondeado solo en modo normal (barras crecen hacia arriba).
-            // en modo espejo (crecen desde el centro) queda raro con redondeo, así que va recto.
-            if (!mi && h > rad * 2 && rad > 1) {
-                cr.newPath();
-                cr.moveTo(x,        y + h);
-                cr.lineTo(x,        y + rad);
-                cr.arc(x + rad, y + rad, rad, Math.PI, 0);
-                cr.lineTo(x + bw, y + h);
-                cr.closePath();
-            } else {
-                cr.rectangle(x, y, bw, h);
-            }
-            cr.fill();
-
-            // ── Pico ──────────────────────────────────────────────────────────
+            // los picos se actualizan siempre, aunque la barra sea invisible (dv < 1),
+            // si no se quedaban congelados cuando el audio se calla
             if (sp) {
                 if (raw >= this._peaks[i]) {
                     this._peaks[i]    = raw;
@@ -255,20 +239,48 @@ CavaDesklet.prototype = {
                 } else {
                     this._peaks[i] = Math.max(0, this._peaks[i] - PEAK_FALL);
                 }
+            }
 
-                if (this._peaks[i] > 3) {
-                    let ph = Math.round(bh * this._peaks[i] / 100);
-                    let py = mi
-                        ? Math.max(0, Math.floor((bh - ph) / 2) - 3)
-                        : Math.max(0, bh - ph - 3);
-                    // línea del pico: mismo azul pero más tenue (alpha 0.5) para que no compita con la barra
-                    cr.setSourceRGBA(BAR_TOP[0], BAR_TOP[1], BAR_TOP[2], 0.5);
-                    cr.rectangle(x, py, bw, 2);
-                    cr.fill();
+            let x  = i * (bw + bg);
+            let dv = Math.max(0, Math.min(100, this._display[i]));
+
+            if (dv >= 1) {
+                let h = Math.max(2, Math.round(bh * dv / 100));
+                let y = mi ? Math.floor((bh - h) / 2) : bh - h;
+
+                // top redondeado (dos esquinas con arc) solo en modo normal.
+                // en modo espejo (crecen desde el centro) queda raro con redondeo, así que va recto.
+                if (!mi && h > rad * 2 && rad > 1) {
+                    cr.moveTo(x,      y + h);
+                    cr.lineTo(x,      y + rad);
+                    cr.arc(x + rad,      y + rad, rad, Math.PI,       1.5 * Math.PI);
+                    cr.lineTo(x + bw - rad, y);
+                    cr.arc(x + bw - rad, y + rad, rad, 1.5 * Math.PI, 2 * Math.PI);
+                    cr.lineTo(x + bw, y + h);
+                    cr.closePath();
+                } else {
+                    cr.rectangle(x, y, bw, h);
                 }
             }
+
+            if (sp && this._peaks[i] > 3) {
+                let ph = Math.round(bh * this._peaks[i] / 100);
+                let py = mi
+                    ? Math.max(0, Math.floor((bh - ph) / 2) - 3)
+                    : Math.max(0, bh - ph - 3);
+                peaks.push(x, py);
+            }
+        }
+        cr.fill();
+
+        // picos: mismo azul pero más tenue (alpha 0.5) para que no compitan con la barra
+        if (peaks.length) {
+            cr.setSourceRGBA(BAR_TOP[0], BAR_TOP[1], BAR_TOP[2], 0.5);
+            for (let k = 0; k < peaks.length; k += 2) cr.rectangle(peaks[k], peaks[k + 1], bw, 2);
+            cr.fill();
         }
 
+        try { grad.$dispose(); } catch (e) {}
         // hay que hacer dispose() del context de Cairo o GJS acumula objetos en memoria.
         // en versiones viejas de GJS $dispose no existe, de ahí el try/catch.
         try { cr.$dispose(); } catch (e) {}
@@ -327,7 +339,11 @@ CavaDesklet.prototype = {
                 catch (e) { line = String(lineBytes); }
 
                 this._parseLine(line.trim());
-                if (this._area) this._area.queue_repaint();
+                // en silencio cava manda ceros todo el tiempo: tras un último repaint que
+                // deja todo en blanco, no hace falta redibujar 25 veces por segundo
+                let idle = this._isIdle();
+                if (this._area && (!idle || !this._wasIdle)) this._area.queue_repaint();
+                this._wasIdle = idle;
                 this._readLine();
             } catch (e) {
                 GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
@@ -336,6 +352,14 @@ CavaDesklet.prototype = {
                 });
             }
         });
+    },
+
+    _isIdle: function () {
+        for (let i = 0; i < this._numBars; i++) {
+            if (this._values[i] > 0 || this._display[i] >= 1
+                || (this._showPeaks && this._peaks[i] > 3)) return false;
+        }
+        return true;
     },
 
     _parseLine: function (line) {
@@ -353,8 +377,20 @@ CavaDesklet.prototype = {
     // cambió algo del layout — hay que tirar el widget y reconstruirlo desde cero.
     // también desconectamos el repaint antes de destruir el área vieja para no dejar
     // señales colgadas que apunten a un objeto muerto.
+    // arrastrar un slider dispara este callback decenas de veces: esperamos a que el usuario
+    // suelte (300ms sin cambios) para no reconstruir el widget ni relanzar cava en cada paso.
     _onLayoutChanged: function () {
+        if (this._rebuildTimer) GLib.source_remove(this._rebuildTimer);
+        this._rebuildTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
+            this._rebuildTimer = null;
+            this._rebuild();
+            return GLib.SOURCE_REMOVE;
+        });
+    },
+
+    _rebuild: function () {
         this._stopCava();
+        this._initArrays();   // num_bars pudo cambiar: los arrays deben tener el largo nuevo
         // soltamos el repaint antes de tirar el área vieja
         if (this._area && this._repaintId) {
             try { this._area.disconnect(this._repaintId); } catch (e) {}
@@ -441,11 +477,7 @@ CavaDesklet.prototype = {
     // framerate y noise_reduction van directo a la config de cava en disco;
     // hay que reiniciarlo para que lea los nuevos valores
     _onCavaConfigChanged: function () {
-        writeCavaConfig(this._numBars, this._framerate, this._noiseReduction);
-        if (!this._pausedByFullscreen) {
-            this._stopCava();
-            this._startCava();
-        }
+        this._onLayoutChanged();
     },
 
     // ── Fullscreen poll ───────────────────────────────────────────────────────
@@ -473,6 +505,7 @@ CavaDesklet.prototype = {
     },
 
     on_desklet_removed: function () {
+        if (this._rebuildTimer) { GLib.source_remove(this._rebuildTimer); this._rebuildTimer = null; }
         this._stopCava();
         if (this._bgSettings && this._bgSignalId) {
             try { this._bgSettings.disconnect(this._bgSignalId); } catch (e) {}

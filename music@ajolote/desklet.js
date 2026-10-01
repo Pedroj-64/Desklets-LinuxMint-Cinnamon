@@ -1,6 +1,6 @@
 // music@ajolote — widget de música para Cinnamon con controles MPRIS.
 // la primera versión spawneaba playerctl 4 veces por tick (status, título, artista, portada)
-// y se notaba en el CPU. ahora todo cae en un solo sh con printf, mucho más limpio.
+// y se notaba en el CPU. ahora es un solo `playerctl metadata --format`, sin sh de por medio.
 
 const Desklet   = imports.ui.desklet;
 const St        = imports.gi.St;
@@ -355,22 +355,18 @@ MusicDesklet.prototype = {
         });
     },
 
-    // todo en un solo sh para no tener 4 procesos de playerctl corriendo al mismo tiempo.
-    // printf los concatena separados por saltos de línea y los parseamos todos de una.
+    // un solo playerctl con --format. el separador es U+001F (unit separator) porque
+    // un título puede contener casi cualquier carácter imprimible, pero ese no.
+    // sin reproductor playerctl sale con error y stdout vacío → lo tratamos como "sin reproducción".
     _update: function () {
         if (this._pauseOnFullscreen && _isAnyWindowFullscreen()) return;
         if (this._fetching) return;
         this._fetching = true;
 
-        let cmd = 'printf "%s\\n%s\\n%s\\n%s\\n"'
-            + ' "$(playerctl status 2>/dev/null)"'
-            + ' "$(playerctl metadata title 2>/dev/null)"'
-            + ' "$(playerctl metadata artist 2>/dev/null)"'
-            + ' "$(playerctl metadata mpris:artUrl 2>/dev/null)"';
-
         try {
             let proc = new Gio.Subprocess({
-                argv:  ['/bin/sh', '-c', cmd],
+                argv:  ['playerctl', 'metadata', '--format',
+                        '{{status}}\x1f{{title}}\x1f{{artist}}\x1f{{mpris:artUrl}}'],
                 flags: Gio.SubprocessFlags.STDOUT_PIPE
                      | Gio.SubprocessFlags.STDERR_SILENCE,
             });
@@ -380,7 +376,7 @@ MusicDesklet.prototype = {
                 if (this._destroyed) return;
                 try {
                     let [, out] = p.communicate_utf8_finish(res);
-                    if (out) this._applyUpdate(out);
+                    this._applyUpdate(out || '');
                 } catch (e) {}
             });
         } catch (e) {
@@ -390,17 +386,19 @@ MusicDesklet.prototype = {
     },
 
     _applyUpdate: function (data) {
-        let lines  = data.split('\n');
-        let status = (lines[0] || '').trim();
-        let title  = (lines[1] || '').trim();
-        let artist = (lines[2] || '').trim();
-        let artUrl = (lines[3] || '').trim();
+        // si nada cambió desde el tick anterior no tocamos ningún actor ni el disco
+        data = data.trim();
+        if (data === this._lastData) return;
+        this._lastData = data;
 
-        if (!status || status === 'No players found') {
+        let [status, title, artist, artUrl] = data.split('\x1f').map(x => (x || '').trim());
+
+        if (!status) {
             this._titleLabel.set_text('Sin reproduccion');
             this._artistLabel.set_text('---');
             this._statusLabel.set_text('[ ]');
             this._playIcon.set_icon_name('media-playback-start-symbolic');
+            this._lastArtUrl = null;
             this._setCoverFallback();
             return;
         }
@@ -421,31 +419,41 @@ MusicDesklet.prototype = {
 
         this._updateCover(artUrl);
 
-        // escribimos en cada tick exitoso así siempre tenemos el estado más reciente
+        // solo llegamos acá cuando el estado cambió, así que escribir a disco es barato
         this._saveCache({ status: status, title: title, artist: artist, artUrl: artUrl });
     },
 
     // ── Portada — solo Gio.FileIcon, sin GdkPixbuf ni Cogl ───────────────────
+    // file:// se usa directo (new_for_uri decodifica %20 y compañía; slice(7) no).
+    // http(s):// (Spotify, navegadores) se baja async a la caché y luego se muestra.
     _updateCover: function (artUrl) {
-        if (!artUrl || artUrl === this._lastArtUrl) return;
+        if (artUrl === this._lastArtUrl) return;
         this._lastArtUrl = artUrl;
 
         if (artUrl.startsWith('file://')) {
-            let path = artUrl.slice(7);
-            try {
-                let file = Gio.File.new_for_path(path);
-                if (file.query_exists(null)) {
-                    this._cover.set_gicon(new Gio.FileIcon({ file: file }));
-                    this._cover.set_icon_size(this._coverSize);
-                    return;
-                }
-            } catch (e) {}
+            let file = Gio.File.new_for_uri(artUrl);
+            if (file.query_exists(null)) return this._showCover(file);
+        } else if (/^https?:\/\//.test(artUrl)) {
+            let dest = Gio.File.new_for_path(GLib.get_user_cache_dir() + '/music@ajolote-cover-'
+                + GLib.compute_checksum_for_string(GLib.ChecksumType.MD5, artUrl, -1));
+            if (dest.query_exists(null)) return this._showCover(dest);
+            Gio.File.new_for_uri(artUrl).copy_async(dest, Gio.FileCopyFlags.OVERWRITE,
+                GLib.PRIORITY_DEFAULT, null, null, (src, res) => {
+                    if (this._destroyed || this._lastArtUrl !== artUrl) return;
+                    try { src.copy_finish(res); this._showCover(dest); }
+                    catch (e) { this._setCoverFallback(); }
+                });
+            return;
         }
         this._setCoverFallback();
     },
 
+    _showCover: function (file) {
+        this._cover.set_gicon(new Gio.FileIcon({ file: file }));
+        this._cover.set_icon_size(this._coverSize);
+    },
+
     _setCoverFallback: function () {
-        this._lastArtUrl = null;
         try {
             this._cover.set_gicon(null);
             this._cover.set_icon_name('audio-x-generic');
@@ -467,6 +475,7 @@ MusicDesklet.prototype = {
         this._titleLabel.set_style('font-size: ' + this._titleFontSize + 'px;');
         // forzamos refresh inmediato para que _maxChars se aplique sin esperar el timer
         this._fetching = false;
+        this._lastData = null;   // fuerza re-aplicar texto (max_chars) aunque la canción sea la misma
         this._update();
     },
 
